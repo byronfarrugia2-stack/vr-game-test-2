@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CONTAINMENT :: Lab 07</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.jsdelivr.net/npm/aframe@1.5.0/dist/aframe-master.min.js"></script>
+  <style>
+    :root{
+      --bg:#eef2f3;
+      --danger:#e0293c;
+      --warn:#c9820a;
+      --safe:#1f9d5c;
+    }
+    html,body{
+      margin:0;
+      padding:0;
+      background:var(--bg);
+      overflow:hidden;
+      height:100%;
+      font-family:Arial,Helvetica,sans-serif;
+    }
+    a-scene{width:100vw;height:100vh;}
+
+    #loadError{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:#12181a;
+      color:#e8edf0;
+      z-index:999;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      text-align:center;
+      padding:40px;
+    }
+    #loadError.show{display:flex;}
+    #loadError h1{color:#ff5e5e;font-size:22px;margin-bottom:12px;}
+    #loadError p{max-width:560px;line-height:1.6;color:#bcccce;font-size:14px;}
+    #loadError code{background:#1c2b2c;padding:2px 6px;border-radius:3px;color:#9fe8c9;}
+    #loadError a{color:#5ec8ff;}
+
+    #hud{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      font-family:'Courier New',monospace;
+      color:#12181a;
+      z-index:5;
+    }
+    #hud *{box-sizing:border-box;}
+    #meterBox{
+      position:absolute;
+      top:18px;
+      left:18px;
+      width:280px;
+      background:#ffffffee;
+      border:1px solid #b7c0c4;
+      padding:10px 12px;
+      border-radius:2px;
+    }
+    #meterLabel{
+      font-size:11px;
+      letter-spacing:1px;
+      color:#5a6a6c;
+      display:flex;
+      justify-content:space-between;
+      margin-bottom:6px;
+    }
+    #meterTrack{
+      height:10px;
+      width:100%;
+      background:#e0e6e8;
+      border:1px solid #b7c0c4;
+      position:relative;
+    }
+    #meterFill{
+      height:100%;
+      width:0%;
+      background:var(--safe);
+      transition:width .4s ease, background .4s ease;
+    }
+
+    #stageBox{
+      position:absolute;
+      top:18px;
+      right:18px;
+      max-width:320px;
+      text-align:right;
+      background:#ffffffee;
+      border:1px solid #b7c0c4;
+      padding:10px 12px;
+      font-size:11px;
+      color:#5a6a6c;
+    }
+    #stageBox b{
+      color:#12181a;
+      display:block;
+      font-size:12px;
+      letter-spacing:.5px;
+      margin-bottom:2px;
+    }
+
+    #objectiveBox{
+      position:absolute;
+      bottom:18px;
+      left:18px;
+      max-width:460px;
+      background:#ffffffee;
+      border-left:3px solid var(--warn);
+      padding:10px 14px;
+      font-size:13px;
+      line-height:1.5;
+      color:#12181a;
+      opacity:0;
+      transform:translateY(6px);
+      transition:opacity .5s ease, transform .5s ease;
+    }
+    #objectiveBox.show{opacity:1;transform:translateY(0);}
+    #toast{
+      position:absolute;
+      bottom:70px;
+      left:50%;
+      transform:translateX(-50%) translateY(10px);
+      background:#12181aee;
+      color:#eef2f3;
+      border:1px solid #333;
+      padding:6px 14px;
+      font-size:12px;
+      opacity:0;
+      transition:opacity .3s ease, transform .3s ease;
+      white-space:nowrap;
+    }
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+    #crosshair{
+      position:absolute;
+      top:50%;
+      left:50%;
+      width:16px;
+      height:16px;
+      margin:-8px 0 0 -8px;
+      border-radius:50%;
+      background:#12181a;
+      border:2px solid #ffffff;
+      box-shadow:0 0 0 1px #12181a;
+      transition:background .1s ease, transform .1s ease;
+    }
+    #crosshair.hot{background:#1f9d5c;transform:scale(1.35);}
+
+    #flash{
+      position:fixed;
+      inset:0;
+      background:var(--danger);
+      opacity:0;
+      pointer-events:none;
+      z-index:6;
+    }
+    #startHint{
+      position:fixed;
+      bottom:18px;
+      left:50%;
+      transform:translateX(-50%);
+      font-family:'Courier New', monospace;
+      color:#5a6a6c;
+      font-size:12px;
+      background:#ffffffee;
+      border:1px solid #b7c0c4;
+      padding:6px 14px;
+      z-index:5;
+      pointer-events:none;
+    }
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      background:rgba(10,15,17,.95);
+      z-index:20;
+      text-align:center;
+      padding:40px;
+      font-family:'Courier New', monospace;
+      color:#eef2f3;
+    }
+    .overlay.active{display:flex;}
+    .```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CONTAINMENT :: Lab 07</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.jsdelivr.net/npm/aframe@1.5.0/dist/aframe-master.min.js"></script>
+  <style>
+    :root{
+      --bg:#eef2f3;
+      --danger:#e0293c;
+      --warn:#c9820a;
+      --safe:#1f9d5c;
+    }
+    html,body{
+      margin:0;
+      padding:0;
+      background:var(--bg);
+      overflow:hidden;
+      height:100%;
+      font-family:Arial,Helvetica,sans-serif;
+    }
+    a-scene{width:100vw;height:100vh;}
+
+    #loadError{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:#12181a;
+      color:#e8edf0;
+      z-index:999;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      text-align:center;
+      padding:40px;
+    }
+    #loadError.show{display:flex;}
+    #loadError h1{color:#ff5e5e;font-size:22px;margin-bottom:12px;}
+    #loadError p{max-width:560px;line-height:1.6;color:#bcccce;font-size:14px;}
+    #loadError code{background:#1c2b2c;padding:2px 6px;border-radius:3px;color:#9fe8c9;}
+    #loadError a{color:#5ec8ff;}
+
+    #hud{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      font-family:'Courier New',monospace;
+      color:#12181a;
+      z-index:5;
+    }
+    #hud *{box-sizing:border-box;}
+    #meterBox{
+      position:absolute;
+      top:18px;
+      left:18px;
+      width:280px;
+      background:#ffffffee;
+      border:1px solid #b7c0c4;
+      padding:10px 12px;
+      border-radius:2px;
+    }
+    #meterLabel{
+      font-size:11px;
+      letter-spacing:1px;
+      color:#5a6a6c;
+      display:flex;
+      justify-content:space-between;
+      margin-bottom:6px;
+    }
+    #meterTrack{
+      height:10px;
+      width:100%;
+      background:#e0e6e8;
+      border:1px solid #b7c0c4;
+      position:relative;
+    }
+    #meterFill{
+      height:100%;
+      width:0%;
+      background:var(--safe);
+      transition:width .4s ease, background .4s ease;
+    }
+
+    #stageBox{
+      position:absolute;
+      top:18px;
+      right:18px;
+      max-width:320px;
+      text-align:right;
+      background:#ffffffee;
+      border:1px solid #b7c0c4;
+      padding:10px 12px;
+      font-size:11px;
+      color:#5a6a6c;
+    }
+    #stageBox b{
+      color:#12181a;
+      display:block;
+      font-size:12px;
+      letter-spacing:.5px;
+      margin-bottom:2px;
+    }
+
+    #objectiveBox{
+      position:absolute;
+      bottom:18px;
+      left:18px;
+      max-width:460px;
+      background:#ffffffee;
+      border-left:3px solid var(--warn);
+      padding:10px 14px;
+      font-size:13px;
+      line-height:1.5;
+      color:#12181a;
+      opacity:0;
+      transform:translateY(6px);
+      transition:opacity .5s ease, transform .5s ease;
+    }
+    #objectiveBox.show{opacity:1;transform:translateY(0);}
+    #toast{
+      position:absolute;
+      bottom:70px;
+      left:50%;
+      transform:translateX(-50%) translateY(10px);
+      background:#12181aee;
+      color:#eef2f3;
+      border:1px solid #333;
+      padding:6px 14px;
+      font-size:12px;
+      opacity:0;
+      transition:opacity .3s ease, transform .3s ease;
+      white-space:nowrap;
+    }
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+    #crosshair{
+      position:absolute;
+      top:50%;
+      left:50%;
+      width:16px;
+      height:16px;
+      margin:-8px 0 0 -8px;
+      border-radius:50%;
+      background:#12181a;
+      border:2px solid #ffffff;
+      box-shadow:0 0 0 1px #12181a;
+      transition:background .1s ease, transform .1s ease;
+    }
+    #crosshair.hot{background:#1f9d5c;transform:scale(1.35);}
+
+    #flash{
+      position:fixed;
+      inset:0;
+      background:var(--danger);
+      opacity:0;
+      pointer-events:none;
+      z-index:6;
+    }
+    #startHint{
+      position:fixed;
+      bottom:18px;
+      left:50%;
+      transform:translateX(-50%);
+      font-family:'Courier New', monospace;
+      color:#5a6a6c;
+      font-size:12px;
+      background:#ffffffee;
+      border:1px solid #b7c0c4;
+      padding:6px 14px;
+      z-index:5;
+      pointer-events:none;
+    }
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      background:rgba(10,15,17,.95);
+      z-index:20;
+      text-align:center;
+      padding:40px;
+      font-family:'Courier New', monospace;
+      color:#eef2f3;
+    }
+    .overlay.active{display:flex;}
+    .overlay h1{
+      font-weight:700;
+      font-size:clamp(24px,5vw,40px);
+      margin:0 0 14px 0;
+      letter-spacing:.5px;
+    }
+    .overlay p{
+      max-width:600px;
+      color:#a7b8ba;
+      font-size:15px;
+      line-height:1.7;
+      margin:0 0 22px 0;
+      text-align:left;
+    }
+    .overlay button,
+    #enterBtn{
+      font-family:'Courier New',monospace;
+      background:transparent;
+      color:#eef2f3;
+      border:1px solid #eef2f3;
+      padding:12px 26px;
+      font-size:13px;
+      letter-spacing:1px;
+      cursor:pointer;
+      pointer-events:all;
+    }
+    .overlay button:hover,
+    #enterBtn:hover{background:#eef2f3;color:#12181a;}
+    #introOverlay h1{color:#ff5e5e;}
+    #failOverlay h1{color:#ff5e5e;}
+    #successOverlay h1{color:#3ddc8a;}
+    #secretOverlay h1{color:#ffb020;}
+
+    #pinModal, #logModal, #scopeModal, #compModal{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(8,12,13,.85);
+      z-index:30;
+      align-items:center;
+      justify-content:center;
+      font-family:'Courier New', monospace;
+    }
+    #pinModal.active, #logModal.active, #scopeModal.active, #compModal.active{display:flex;}
+
+    #pinBox, #compBox{
+      background:#12181a;
+      border:1px solid #3a4749;
+      padding:26px 30px;
+      width:280px;
+      text-align:center;
+      color:#dff2ef;
+    }
+    #pinBox h2, #compBox h2{margin:0 0 4px 0;font-size:15px;letter-spacing:1px;color:#9fe8c9;}
+    #pinBox .sub, #compBox .sub{font-size:11px;color:#7a8f8d;margin-bottom:16px;}
+    #pinDisplay, #compDisplay{
+      font-size:28px;
+      letter-spacing:10px;
+      background:#0a1012;
+      border:1px solid #3a4749;
+      padding:10px 0;
+      margin-bottom:14px;
+      color:#3ddc8a;
+      min-height:1.4em;
+    }
+    #pinDisplay.wrong, #compDisplay.wrong{color:#ff5e5e;}
+    #pinGrid, #compGrid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+      margin-bottom:14px;
+    }
+    #pinGrid button, #compGrid button{
+      font-family:'Courier New',monospace;
+      font-size:18px;
+      padding:12px 0;
+      background:#1c2b2c;
+      color:#dff2ef;
+      border:1px solid #3a4749;
+      cursor:pointer;
+    }
+    #pinGrid button:hover, #compGrid button:hover{background:#2a3f40;}
+    #pinClose, #logClose, #scopeClose, #compClose{
+      margin-top:12px;
+      background:none;
+      border:none;
+      color:#7a8f8d;
+      font-family:'Courier New', monospace;
+      font-size:11px;
+      cursor:pointer;
+      text-decoration:underline;
+    }
+
+    #logBox, #scopeBox{
+      background:#12181a;
+      border:1px solid #3a4749;
+      padding:24px 28px;
+      width:340px;
+      color:#dff2ef;
+      text-align:left;
+    }
+    #logBox h2, #scopeBox h2{margin:0 0 10px 0;font-size:14px;letter-spacing:1px;color:#9fe8c9;}
+    #logBox p, #scopeBox p{font-size:13px;line-height:1.6;color:#c3d4d2;margin:0;white-space:pre-line;}
+  </style>
+</head>
+<body>
+<div id="loadError">
+  <h1>3D LIBRARY FAILED TO LOAD</h1>
+  <p>This page needs the A-Frame library from a CDN, and it did not load—almost always
+  caused by a network filter, firewall, or ad-blocker blocking <code>cdn.jsdelivr.net</code>. This
+  is not a bug in the page itself.</p>
+  <p>Try: disabling any ad-blocker/VPN for this page, switching networks, or opening
+  <a href="https://cdn.jsdelivr.net/npm/aframe@1.5.0/dist/aframe-master.min.js" target="_blank" rel="noopener">this link</a> directly to test it.</p>
+</div>
+
+<div id="hud">
+  <div id="meterBox">
+    <div id="meterLabel"><span>CONTAMINATION</span><span id="meterPct">0%</span></div>
+    <div id="meterTrack"><div id="meterFill"></div></div>
+  </div>
+
+  <div id="stageBox">
+    <b id="stageName">SYSTEM BOOT</b>
+    <span id="stageHint">Initializing containment lab ...</span>
+  </div>
+  <div id="objectiveBox"></div>
+  <div id="toast"></div>
+</div>
+<div id="crosshair"></div>
+
+<div id="startHint" style="display:none;">Click once to lock the pointer. WASD to move. Aim the dot and click to interact.</div>
+<div id="flash"></div>
+
+<div id="introOverlay" class="overlay active">
+  <h1>LAB 07 - CONTAINMENT BREACH</h1>
+  <p>
+    Nexonyx Biotech, Sublevel 4. 03:14.<br><br>
+    Dr. Alden Voss ran gene-splicing trials on an unlisted subject—logged only as "Subject 07"—without clearance from the safety board. Forty minutes ago the containment pod cracked.
+    Automated systems failed. External comms went dark. You're the technician they sent in,
+    because you were the only one still on-site.<br><br>
+    Restore power, stabilize the sample, and reach the containment override before contamination
+    seals the room for good. Notes and logs are scattered around the lab—read them. The
+    periodic table on the back wall isn't just decoration.
+  </p>
+  <button id="enterBtn">ENTER THE LAB</button>
+</div>
+
+<div id="failOverlay" class="overlay">
+  <h1>CONTAINMENT LOST</h1>
+  <p>Contamination reached 100%. The outer door seals automatically. Whatever Voss was
+  hiding down here, it stays hidden—and so do you.</p>
+  <button onclick="location.reload()">RESTART</button>
+</div>
+
+<div id="successOverlay" class="overlay">
+  <h1>CONTAINMENT RESTORED</h1>
+  <p>Override accepted. The blast door grinds open. You make it out before the seal fails—
+  Voss's notes still burning a hole in your pocket.</p>
+  <button onclick="location.reload()">RESTART</button>
+</div>
+
+<div id="secretOverlay" class="overlay">
+  <h1>"SUBJECT 07 RECOGNISED."</h1>
+  <p>The lights dim to a soft amber. The lasers power down on their own. Whatever Subject 07
+  was, it seems to have decided you're not the enemy. The door was never really locked for
+  you.</p>
+  <button onclick="location.reload()">RESTART</button>
+</div>
+
+<div id="pinModal">
+  <div id="pinBox">
+    <h2>OVERRIDE TERMINAL</h2>
+    <div class="sub">ENTER 4-DIGIT ACCESS CODE</div>
+    <div id="pinDisplay"></div>
+    <div id="pinGrid">
+      <button data-d="1">1</button><button data-d="2">2</button><button data-d="3">3</button>
+      <button data-d="4">4</button><button data-d="5">5</button><button data-d="6">6</button>
+      <button data-d="7">7</button><button data-d="8">8</button><button data-d="9">9</button>
+      <button id="pinBackspace">⌫</button><button data-d="0">0</button><button id="pinSubmit">⏎</button>
+    </div>
+    <button id="pinClose">close terminal</button>
+  </div>
+</div>
+
+<div id="compModal">
+  <div id="compBox">
+    <h2>LAB CONSOLE</h2>
+    <div class="sub">ENTER ACCESS PIN (MICROSCOPE CLUE)</div>
+    <div id="compDisplay"></div>
+    <div id="compGrid">
+      <button data-d="1">1</button><button data-d="2">2</button><button data-d="3">3</button>
+      <button data-d="4">4</button><button data-d="5">5</button><button data-d="6">6</button>
+      <button data-d="7">7</button><button data-d="8">8</button><button data-d="9">9</button>
+      <button id="compBackspace">⌫</button><button data-d="0">0</button><button id="compSubmit">⏎</button>
+    </div>
+    <button id="compClose">close console</button>
+  </div>
+</div>
+
+<div id="logModal">
+  <div id="logBox">
+    <h2 id="logTitle">LOG ENTRY</h2>
+    <p id="logBody"></p>
+    <button id="logClose">close</button>
+  </div>
+</div>
+
+<div id="scopeModal">
+  <div id="scopeBox">
+    <h2>MICROSCOPE VIEW</h2>
+    <img src="assets/images/microbe_digits.png" style="width:100%;border:1px solid #3a4749;margin-bottom:14px;">
+    <p>
+      Organisms cluster into shapes resembling digits.<br>
+      These shapes form the PIN for the lab console.
+    </p>
+    <button id="scopeClose">close microscope</button>
+  </div>
+</div>
+
+<a-scene id="scene" background="color: #cfd8dc" renderer="physicallyCorrectLights: false">
+  <a-assets>
+    <audio id="sfx-alarm" src="assets/audio/alarm.mp3" preload="auto"></audio>
+    <audio id="sfx-voice" src="assets/audio/voice-intro.mp3" preload="auto"></audio>
+    <audio id="sfx-bang" src="assets/audio/bang.mp3" preload="auto"></audio>
+    <audio id="sfx-error" src="assets/audio/error.mp3" preload="auto"></audio>
+    <audio id="sfx-success" src="assets/audio/success.mp3" preload="auto"></audio>
+    <audio id="sfx-glitch" src="assets/audio/glitch.mp3" preload="auto"></audio>
+    <img id="scopeImg" src="assets/images/microbe_digits.png">
+  </a-assets>
+
+  <a-entity id="rig" position="0 1.6 4" movement-controls="fly:false">
+    <a-camera look-controls="pointerLockEnabled: true" wasd-controls="acceleration:60">
+      <a-cursor
+        id="cursor"
+        raycaster="objects: .clickable; far: 20"
+        material="color: #1f9d5c; shader: flat; opacity:0.85"
+        geometry="radiusInner: 0.001; radiusOuter: 0.01">
+      </a-cursor>
+    </a-camera>
+  </a-entity>
+
+  <a-entity id="ambientLight" light="type: ambient; intensity: 0.9; color: #ffffff"></a-entity>
+  <a-entity id="mainLight" light="type: point; intensity: 1; color: #ffffff; distance: 25" position="0 4.5 0"></a-entity>
+
+  <a-entity id="redLight1" light="type: point; intensity: 0; color: #ff2b3d; distance: 10" position="-4 2.5 -3"></a-entity>
+  <a-entity id="redLight2" light="type: point; intensity: 0; color: #ff2b3d; distance: 10" position="4 2.5 2"></a-entity>
+
+  <a-plane rotation="-90 0 0" width="14" height="14" material="color:#b7c0c4; shader:flat"></a-plane>
+  <a-plane rotation="90 0 0" position="0 5 0" width="14" height="14" material="color:#f5f7f8; shader:flat"></a-plane>
+  <a-plane position="0 2.5 -7" width="14" height="5" material="color:#dfe6e8; shader:flat"></a-plane>
+  <a-plane position="0 2.5 7" rotation="0 180 0" width="14" height="5" material="color:#dfe6e8; shader:flat"></a-plane>
+  <a-plane position="-7 2.5 0" rotation="0 90 0" width="14" height="5" material="color:#d3dcdf; shader:flat"></a-plane>
+  <a-plane position="7 2.5 0" rotation="0 -90 0" width="14" height="5" material="color:#d3dcdf; shader:flat"></a-plane>
+
+  <a-plane position="-3 4.95 -3" rotation="90 0 0" width="2" height="0.6" material="color:#ffffff; shader:flat"></a-plane>
+  <a-plane position="3 4.95 -3" rotation="90 0 0" width="2" height="0.6" material="color:#ffffff; shader:flat"></a-plane>
+  <a-plane position="-3 4.95 3" rotation="90 0 0" width="2" height="0.6" material="color:#ffffff; shader:flat"></a-plane>
+  <a-plane position="3 4.95 3" rotation="90 0 0" width="2" height="0.6" material="color:#ffffff; shader:flat"></a-plane>
+
+  <a-plane rotation="-90 0 0" position="0 0.005 -5" width="6" height="0.5" material="color:#c9820a; shader:flat"></a-plane>
+
+  <!-- broken containment pod + sample -->
+  <a-entity position="0 1.1 -6.3">
+    <a-cylinder radius="0.9" height="2.2" material="color:#8a9a9c; shader:flat"></a-cylinder>
+    <a-box position="0.2 0.3 0.85" width="0.05" height="1.4" depth="0.05" rotation="0 0 12" material="color:#2b3436; shader:flat"></a-box>
+
+    <!-- cracked glass panels -->
+    <a-plane position="0 0.4 0.9" rotation="0 0 0" width="1.2" height="1.0" material="color:#f5f7f8; opacity:0.25; transparent:true; shader:flat"></a-plane>
+    <a-plane position="0.1 0.4 0.91" rotation="0 0 0" width="0.02" height="0.6" material="color:#c9303f; shader:flat"></a-plane>
+    <a-plane position="-0.15 0.4 0.91" rotation="0 0 0" width="0.02" height="0.4" material="color:#c9303f; shader:flat"></a-plane>
+    <a-plane position="0 0.4 0.91" rotation="0 0 0" width="0.02" height="0.8" material="color:#c9303f; shader:flat"></a-plane>
+
+    <!-- leaking trail -->
+    <a-plane position="0 -0.9 0.7" rotation="-90 0 0" width="0.2" height="0.6" material="color:#39ff88; opacity:0.6; transparent:true; shader:flat"></a-plane>
+
+    <a-sphere
+      id="sample"
+      class="clickable"
+      position="0 -0.9 0.85"
+      radius="0.25"
+      material="color:#39ff88; shader:flat; opacity:0.95; transparent:true"
+      animation__pulse="property: scale; dir: alternate; from: 1 1 1; to: 1.3 1.3 1.3; dur: 900; loop: true">
+    </a-sphere>
+    <a-text value="UNSTABLE SAMPLE" position="0 -0.3 0.85" align="center" width="3" color="#1f9d5c"></a-text>
+    <a-text value="CONTAINMENT POD // BREACHED" position="0 1.5 0.85" align="center" width="3" color="#c9303f"></a-text>
+  </a-entity>
+
+  <a-text id="goalText" value="RESTORE POWER." position="0 2.4 -3" align="center" width="5" color="#12181a" opacity="0"></a-text>
+
+  <a-entity id="powerPanel" position="-5.5 1.4 -2">
+    <a-plane width="1.8" height="1.4" rotation="0 40 0" material="color:#e8edf0; shader:flat"></a-plane>
+    <a-text value="POWER RELAY" position="0 0.85 0" rotation="0 40 0" align="center" width="2" color="#3a4749"></a-text>
+
+    <a-box class="clickable switch" id="switch1" data-switch="1" position="-0.4 0 0.3" rotation="0 40 0" width="0.3" height="0.55" depth="0.15" material="color:#e0293c; shader:flat"></a-box>
+    <a-box class="clickable switch" id="switch2" data-switch="2" position="0 0 0.3" rotation="0 40 0" width="0.3" height="0.55" depth="0.15" material="color:#e0293c; shader:flat"></a-box>
+    <a-box class="clickable switch" id="switch3" data-switch="3" position="0.4 0 0.3" rotation="0 40 0" width="0.3" height="0.55" depth="0.15" material="color:#e0293c; shader:flat"></a-box>
+    <a-box class="clickable switch-decoy" id="switchFaulty" position="0.85 0 0.3" rotation="0 40 0" width="0.3" height="0.55" depth="0.15" material="color:#9aa4a6; shader:flat"></a-box>
+    <a-text value="1 2 3 X" position="0 -0.5 0.3" rotation="0 40 0" align="center" width="2.2" color="#3a4749"></a-text>
+  </a-entity>
+
+  <a-entity position="-4.9 1.1 -1.2">
+    <a-box
+      class="clickable datapad"
+      id="log1"
+      data-title="PERSONAL LOG - DR. A. VOSS"
+      data-body="Day 41.%0AThe board keeps asking about containment redundancy. I told them the backup relay is fine.%0A%0AIt is not fine.%0A%0A(Scrawled in the margin, different pen: OVERRIDE CODE - DIGITS 1-2: 4 1)"
+      width="0.35" height="0.05" depth="0.25"
+      material="color:#2b3436; shader:flat">
+    </a-box>
+    <a-text value="LOG" position="0 0.05 0.13" rotation="-90 0 0" align="center" width="1" color="#3ddc8a"></a-text>
+  </a-entity>
+
+  <a-entity id="dnaArea" position="-2 1.1 -5.2" visible="false">
+    <a-box width="1.6" height="1" depth="0.8" material="color:#8a9a9c; shader:flat"></a-box>
+    <a-text value="GENE SEQUENCER" position="0 0.85 0" align="center" width="2.4" color="#3a4749"></a-text>
+
+    <a-box class="clickable dna-slot" id="slotA" data-slot="A" data-correct="fragB" position="-0.5 0.55 0.15" width="0.35" height="0.15" depth="0.35" material="color:#c7d0d2; shader:flat"></a-box>
+    <a-text value="NEEDS: He" position="-0.5 0.35 0.4" align="center" width="1.2" color="#3a4749"></a-text>
+
+    <a-box class="clickable dna-slot" id="slotB" data-slot="B" data-correct="fragC" position="0 0.55 0.15" width="0.35" height="0.15" depth="0.35" material="color:#c7d0d2; shader:flat"></a-box>
+    <a-text value="NEEDS: F" position="0 0.35 0.4" align="center" width="1.2" color="#3a4749"></a-text>
+
+    <a-box class="clickable dna-slot" id="slotC" data-slot="C" data-correct="fragA" position="0.5 0.55 0.15" width="0.35" height="0.15" depth="0.35" material="color:#c7d0d2; shader:flat"></a-box>
+    <a-text value="NEEDS: Li" position="0.5 0.35 0.4" align="center" width="1.2" color="#3a4749"></a-text>
+  </a-entity>
+
+  <a-entity position="-1.3 1.15 -5.0">
+    <a-box
+      class="clickable datapad"
+      id="log2"
+      data-title="MAINTENANCE NOTE"
+      data-body="Sequencer recalibrated after the Q3 retrofit.%0A%0AStrand color now maps to periodic CATEGORY, not raw element name. Check the wall chart's shading before loading fragments."
+      width="0.35" height="0.05" depth="0.25"
+      material="color:#2b3436; shader:flat">
+    </a-box>
+    <a-text value="LOG" position="0 0.05 0.13" rotation="-90 0 0" align="center" width="1" color="#3ddc8a"></a-text>
+  </a-entity>
+
+  <a-entity id="fragments" visible="false">
+    <a-sphere class="clickable dna-fragment" id="fragA" data-frag="fragA" position="-2.6 1.05 -4.9" radius="0.15" material="color:#c9303f; shader:flat"></a-sphere>
+    <a-sphere class="clickable dna-fragment" id="fragB" data-frag="fragB" position="-2 1.05 -4.9" radius="0.15" material="color:#1a73c4; shader:flat"></a-sphere>
+    <a-sphere class="clickable dna-fragment" id="fragC" data-frag="fragC" position="-1.4 1.05 -4.9" radius="0.15" material="color:#c9820a; shader:flat"></a-sphere>
+  </a-entity>
+
+  <a-entity id="vent" position="6.8 2 0" rotation="0 0 0">
+    <a-box width="0.1" height="1.2" depth="1.2" material="color:#8a9a9c; shader:flat"></a-box>
+  </a-entity>
+  <a-box id="shadowFigure" position="6 1.4 0" width="0.6" height="1.8" depth="0.2" material="color:#000000; shader:flat" visible="false"></a-box>
+
+  <a-entity id="chemArea" position="4.5 1.2 -5.2" visible="false">
+    <a-text value="DAMAGED READOUT: STABILIZER REQUIRES A[N] ALK -- I BASE" position="0 1 0" align="center" width="3" color="#c9303f"></a-text>
+
+    <a-cylinder class="clickable bottle" id="bottleA" data-bottle="A" position="-0.6 0.4 0" radius="0.14" height="0.42" material="color:#e8edf0; shader:flat"></a-cylinder>
+    <a-text value="Cl" position="-0.6 0.65 0" align="center" width="1" color="#3a4749"></a-text>
+
+    <a-cylinder class="clickable bottle" id="bottleB" data-bottle="B" position="0 0.4 0" radius="0.14" height="0.42" material="color:#e8edf0; shader:flat" data-correct="true"></a-cylinder>
+    <a-text value="Na" position="0 0.65 0" align="center" width="1" color="#3a4749"></a-text>
+
+    <a-cylinder class="clickable bottle" id="bottleC" data-bottle="C" position="0.6 0.4 0" radius="0.14" height="0.42" material="color:#e8edf0; shader:flat"></a-cylinder>
+    <a-text value="Ar" position="0.6 0.65 0" align="center" width="1" color="#3a4749"></a-text>
+
+    <a-box id="mixer" position="0 0 0.8" width="0.5" height="0.4" depth="0.5" material="color:#8a9a9c; shader:flat"></a-box>
+    <a-text value="MIXER // CLICK A BOTTLE TO POUR" position="0 -0.3 0.8" align="center" width="3" color="#3a4749"></a-text>
+  </a-entity>
+
+  <!-- microscope + console on bench -->
+  <a-entity id="scopeArea" position="4.5 0 -3.5" visible="false">
+    <a-box position="-0.6 0.4 0" width="0.6" height="0.4" depth="0.6" material="color:#8a9a9c; shader:flat"></a-box>
+    <a-cylinder class="clickable" id="microscope" position="-0.6 0.8 0" radius="0.12" height="0.4" material="color:#8a9a9c; shader:flat"></a-cylinder>
+    <a-text value="MICROSCOPE" position="-0.6 1.2 0" align="center" width="1.6" color="#3a4749"></a-text>
+
+    <a-box position="0.6 0.4 0" width="0.6" height="0.4" depth="0.6" material="color:#2b3436; shader:flat"></a-box>
+    <a-plane class="clickable" id="labConsole" position="0.6 0.8 0.11" width="0.4" height="0.25" material="color:#0f3d2a; shader:flat"></a-plane>
+    <a-text value="CONSOLE" position="0.6 1.2 0.11" align="center" width="1.6" color="#3ddc8a"></a-text>
+  </a-entity>
+
+  <!-- vent purge area with visible text -->
+  <a-entity id="ventArea" position="6.5 1.3 -2" visible="false">
+    <a-text value="AIRFLOW PURGE" position="0 1 0.5" rotation="0 0 0" align="center" width="3" color="#3a4749"></a-text>
+
+    <a-box class="clickable vent-btn" id="ventBtnAr" data-btn="Ar" position="-0.4 0.3 0.5" width="0.26" height="0.26" depth="0.12" material="color:#c7d0d2; shader:flat"></a-box>
+    <a-text value="Ar" position="-0.4 0.6 0.5" align="center" width="1" color="#3a4749"></a-text>
+
+    <a-box class="clickable vent-btn" id="ventBtnHe" data-btn="He" position="0 0.3 0.5" width="0.26" height="0.26" depth="0.12" material="color:#c7d0d2; shader:flat"></a-box>
+    <a-text value="He" position="0 0.6 0.5" align="center" width="1" color="#3a4749"></a-text>
+
+    <a-box class="clickable vent-btn" id="ventBtnNe" data-btn="Ne" position="0.4 0.3 0.5" width="0.26" height="0.26" depth="0.12" material="color:#c7d0d2; shader:flat"></a-box>
+    <a-text value="Ne" position="0.4 0.6 0.5" align="center" width="1" color="#3a4749"></a-text>
+  </a-entity>
+
+  <a-plane id="fogLeak" rotation="-90 0 0" position="0 0.05 0" width="14" height="14" material="color:#ffffff; shader:flat; opacity:0; transparent:true"></a-plane>
+
+  <a-entity position="6.2 1.1 -3.0">
+    <a-box
+      class="clickable datapad"
+      id="log4"
+      data-title="MAINTENANCE NOTE"
+      data-body="Purge cycle rewired during the noble-gas cooling retrofit.%0A%0AThe three vents fire in the same order those elements appear on the periodic chart - top row first, then down."
+      width="0.35" height="0.05" depth="0.25"
+      material="color:#2b3436; shader:flat">
+    </a-box>
+    <a-text value="LOG" position="0 0.05 0.13" rotation="-90 0 0" align="center" width="1" color="#3ddc8a"></a-text>
+  </a-entity>
+
+  <!-- secret orange vial -->
+  <a-cylinder
+    class="clickable"
+    id="vialSubject07"
+    position="6.3 0.9 5.5"
+    radius="0.1"
+    height="0.32"
+    material="color:#c9820a; shader:flat; opacity:1; transparent:false"
+    animation__glow="property: material.opacity; dir: alternate; from: 0.7; to: 1; dur: 1200; loop: true">
+  </a-cylinder>
+  <a-text value="UNLABELED VIAL" position="6.3 1.2 5.5" align="center" width="1.4" color="#3a4749"></a-text>
+
+  <a-entity id="finalArea" position="0 1.3 6.8" rotation="0 180 0" visible="false">
+    <a-text value="CONTAINMENT OVERRIDE" position="0 1.5 0" align="center" width="3" color="#3a4749"></a-text>
+
+    <a-box class="clickable final-step" id="stepScan" data-step="scan" position="-1.9 0.4 0" width="0.55" height="0.65" depth="0.12" material="color:#1a73c4; shader:flat"></a-box>
+    <a-text value="HAND SCAN" position="-1.9 -0.2 0" align="center" width="1.4" color="#3a4749"></a-text>
+
+    <a-box class="clickable final-step" id="stepStabiliser" data-step="stabiliser" position="-0.65 0.4 0" width="0.55" height="0.65" depth="0.12" material="color:#1f9d5c; shader:flat"></a-box>
+    <a-text value="STABILISER" position="-0.65 -0.2 0" align="center" width="1.4" color="#3a4749"></a-text>
+
+    <a-box class="clickable final-step" id="stepLasers" data-step="lasers" position="0.65 0.4 0" width="0.55" height="0.65" depth="0.12" material="color:#c9303f; shader:flat"></a-box>
+    <a-text value="ALIGN LASERS" position="0.65 -0.2 0" align="center" width="1.6" color="#3a4749"></a-text>
+
+    <a-entity position="1.9 0.4 0">
+      <a-box width="0.55" height="0.65" depth="0.12" material="color:#2b3436; shader:flat"></a-box>
+      <a-plane class="clickable" id="stepCode" data-step="code" position="0 0 0.07" width="0.42" height="0.5" material="color:#0f3d2a; shader:flat"></a-plane>
+      <a-text value="TERMINAL" position="0 0 0.08" align="center" width="1.1" color="#3ddc8a"></a-text>
+    </a-entity>
+    <a-text value="ENTER CODE" position="1.9 -0.2 0" align="center" width="1.4" color="#3a4749"></a-text>
+
+    <a-plane id="blastDoor" position="0 0 -0.2" width="4" height="3" material="color:#dfe6e8; shader:flat"></a-plane>
+  </a-entity>
+
+  <!-- extra log with digits 3-4 -->
+  <a-entity position="0.8 1.1 6.2">
+    <a-box
+      class="clickable datapad"
+      id="log5"
+      data-title="SECURITY NOTE (SCRATCHED)"
+      data-body="Override PIN was split across two notes after the last breach drill.%0A%0AYou already saw digits 1-2.%0A%0ADigits 3-4: 7 2."
+      width="0.35" height="0.05" depth="0.25"
+      material="color:#2b3436; shader:flat">
+    </a-box>
+    <a-text value="LOG" position="0 0.05 0.13" rotation="-90 0 0" align="center" width="1" color="#3ddc8a"></a-text>
+  </a-entity>
+
+  <a-entity id="labDressing"></a-entity>
+</a-scene>
+
+<script>
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    if (!window.AFRAME) document.getElementById('loadError').classList.add('show');
+  }, 2500);
+});
+
+function initGame() {
+  const $ = (sel) => document.querySelector(sel);
+  function el(tag, attrs) {
+    const e = document.createElement(tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  function buildLabDressing() {
+    const root = $('#labDressing');
+
+    // tidy benches + storage
+    root.appendChild(el('a-box', {
+      position: '-6.8 0.9 0.5',
+      width: '0.25',
+      height: '0.05',
+      depth: '3.2',
+      material: 'color:#9aa4a6; shader:flat'
+    }));
+    const tubeColors = ['#1a73c4', '#c9820a', '#c9303f', '#9a5ee0', '#3ddc8a', '#e07850', '#1f9d5c', '#c9820a'];
+    tubeColors.forEach((color, i) => {
+      const z = -0.9 + i * 0.4;
+      root.appendChild(el('a-cylinder', {
+        position: `-6.75 1.07 ${z}`,
+        radius: '0.045',
+        height: '0.32',
+        material: 'color:#e8edf0; opacity:0.5; transparent:true; shader:flat'
+      }));
+      root.appendChild(el('a-cylinder', {
+        position: `-6.75 0.95 ${z}`,
+        radius: '0.04',
+        height: '0.12',
+        material: `color:${color}; shader:flat`
+      }));
+    });
+    root.appendChild(el('a-text', {
+      value: 'SAMPLE STORAGE',
+      position: '-6.9 1.5 0.5',
+      rotation: '0 90 0',
+      align: 'center',
+      width: '2',
+      color: '#3a4749'
+    }));
+    root.appendChild(el('a-box', {
+      position: '-6.8 0.4 0.5',
+      width: '0.3',
+      height: '0.35',
+      depth: '3.2',
+      material: 'color:#c7d0d2; shader:flat'
+    }));
+
+    // crates
+    root.appendChild(el('a-box', {
+      position: '-6.3 0.3 -6.3',
+      width: '0.6',
+      height: '0.6',
+      depth: '0.6',
+      material: 'color:#c98a4a; shader:flat'
+    }));
+    root.appendChild(el('a-box', {
+      position: '-6.3 0.61 -6.3',
+      width: '0.62',
+      height: '0.03',
+      depth: '0.62',
+      material: 'color:#8a5a2a; shader:flat'
+    }));
+    root.appendChild(el('a-box', {
+      position: '-5.5 0.3 -6.3',
+      width: '0.6',
+      height: '0.6',
+      depth: '0.6',
+      material: 'color:#c98a4a; shader:flat'
+    }));
+    root.appendChild(el('a-box', {
+      position: '-5.5 0.61 -6.3',
+      width: '0.62',
+      height: '0.03',
+      depth: '0.62',
+      material: 'color:#8a5a2a; shader:flat'
+    }));
+
+    // wet lab bench
+    root.appendChild(el('a-box', {
+      position: '6.7 0.5 1.5',
+      width: '0.5',
+      height: '1',
+      depth: '2',
+      material: 'color:#8a9a9c; shader:flat'
+    }));
+    [0.8, 1.2, 2.1].forEach((z, i) => {
+      root.appendChild(el('a-cylinder', {
+        position: `6.7 1.08 ${z}`,
+        radius: '0.09',
+        height: '0.16',
+        'open-ended': 'true',
+        material: 'color:#e8edf0; opacity:0.6; transparent:true; shader:flat'
+      }));
+      root.appendChild(el('a-cylinder', {
+        position: `6.7 1.03 ${z}`,
+        radius: '0.08',
+        height: '0.06',
+        material: `color:${['#1f9d5c', '#3ddc8a', '#e07850'][i]}; shader:flat`
+      }));
+    });
+    root.appendChild(el('a-cylinder', {
+      position: '6.65 1.03 1.7',
+      rotation: '0 0 90',
+      radius: '0.09',
+      height: '0.16',
+      material: 'color:#e8edf0; opacity:0.6; transparent:true; shader:flat'
+    }));
+    root.appendChild(el('a-plane', {
+      position: '6.55 1.005 1.85',
+      rotation: '-90 0 0',
+      width: '0.3',
+      height: '0.2',
+      material: 'color:#3ddc8a; opacity:0.5; transparent:true; shader:flat'
+    }));
+    [['6.5 1.01 1.0', '-90 0 12'], ['6.62 1.01 1.05', '-90 0 -25'], ['6.7 1.01 0.92', '-90 0 60']].forEach(([pos, rot]) => {
+      root.appendChild(el('a-plane', {
+        position: pos,
+        rotation: rot,
+        width: '0.09',
+        height: '0.13',
+        material: 'color:#f5f7f8; opacity:0.7; transparent:true; shader:flat'
+      }));
+    });
+    root.appendChild(el('a-plane', {
+      position: '6.55 1.005 1.0',
+      rotation: '-90 0 0',
+      width: '0.35',
+      height: '0.3',
+      material: 'color:#5a6a6c; opacity:0.5; transparent:true; shader:flat'
+    }));
+    root.appendChild(el('a-text', {
+      value: 'WET LAB BENCH - SAMPLE PREP',
+      position: '6.9 1.4 1.5',
+      rotation: '0 -90 0',
+      align: 'center',
+      width: '2.6',
+      color: '#3a4749'
+    }));
+
+    // periodic table
+    const elements = [
+      ['H', 1, 1, 'n'], ['He', 1, 18, 'noble'],
+      ['Li', 2, 1, 'alkali'], ['Be', 2, 2, 'n'], ['B', 2, 13, 'n'], ['C', 2, 14, 'n'], ['N', 2, 15, 'n'], ['O', 2, 16, 'n'],
+      ['F', 2, 17, 'halogen'], ['Ne', 2, 18, 'noble'],
+      ['Na', 3, 1, 'alkali'], ['Mg', 3, 2, 'n'], ['Al', 3, 13, 'n'], ['Si', 3, 14, 'n'], ['P', 3, 15, 'n'], ['S', 3, 16, 'n'],
+      ['Cl', 3, 17, 'halogen'], ['Ar', 3, 18, 'noble']
+    ];
+    const catColor = { n: '#c7d0d2', alkali: '#f0b0b8', halogen: '#f5dd9e', noble: '#aed0f0' };
+    const cellSize = 0.2, originX = -5.4, originY = 3.7;
+
+    root.appendChild(el('a-plane', {
+      position: `${originX + 1.4} ${originY + 0.05} -6.96`,
+      width: '4.0',
+      height: '2.6',
+      material: 'color:#e8edf0; shader:flat'
+    }));
+    root.appendChild(el('a-text', {
+      value: 'PERIODIC TABLE OF THE ELEMENTS (1-18)',
+      position: `${originX + 1.4} ${originY + 1.05} -6.94`,
+      align: 'center',
+      width: '3.4',
+      color: '#3a4749'
+    }));
+
+    elements.forEach(([sym, row, col, cat]) => {
+      const x = originX + (col - 1) * cellSize;
+      const y = originY - (row - 1) * cellSize;
+      root.appendChild(el('a-plane', {
+        position: `${x} ${y} -6.95`,
+        width: cellSize * 0.88,
+        height: cellSize * 0.88,
+        material: `color:${catColor[cat]}; shader:flat`
+      }));
+      root.appendChild(el('a-text', {
+        value: sym,
+        position: `${x} ${y} -6.93`,
+        align: 'center',
+        width: '1.4',
+        color: '#2b3436'
+      }));
+    });
+
+    root.appendChild(el('a-text', {
+      value: 'KEY: pink = ALKALI METAL (restores RED strands) gold = HALOGEN (restores YELLOW strands) blue = NOBLE GAS (restores BLUE strands)',
+      position: `${originX + 1.4} ${originY - 0.75} -6.94`,
+      align: 'center',
+      width: '4.6',
+      color: '#3a4749'
+    }));
+
+    // ethics memo
+    root.appendChild(el('a-box', {
+      id: 'log3',
+      class: 'clickable datapad',
+      position: '-3.0 1.1 -6.7',
+      width: '0.35',
+      height: '0.05',
+      depth: '0.25',
+      material: 'color:#2b3436; shader:flat',
+      'data-title': 'ETHICS BOARD MEMO (UNSENT)',
+      'data-body': "Dr. Voss,%0A%0AYour request to proceed with Subject 07's splicing trial was denied twice. We have reason to believe you proceeded anyway.%0A%0AThis memo was never sent. We don't know why."
+    }));
+    root.appendChild(el('a-text', {
+      value: 'LOG',
+      position: '-3.0 1.15 -6.57',
+      align: 'center',
+      width: '1',
+      color: '#3ddc8a'
+    }));
+
+    // ceiling rails etc.
+    root.appendChild(el('a-box', {
+      position: '-3 4.7 0',
+      rotation: '0 0 90',
+      width: '4.5',
+      height: '0.15',
+      depth: '0.15',
+      material: 'color:#9aa4a6; shader:flat'
+    }));
+    root.appendChild(el('a-box', {
+      position: '3 4.7 -3',
+      rotation: '90 0 0',
+      width: '5',
+      height: '0.15',
+      depth: '0.15',
+      material: 'color:#9aa4a6; shader:flat'
+    }));
+
+    // hazard signage
+    root.appendChild(el('a-plane', {
+      position: '4.2 3.1 -6.9',
+      width: '0.9',
+      height: '0.9',
+      material: 'color:#f5e28a; shader:flat'
+    }));
+    root.appendChild(el('a-text', {
+      value: 'BIOHAZARD\nAREA',
+      position: '4.2 3.1 -6.88',
+      align: 'center',
+      width: '1.5',
+      color: '#2b2b2b'
+    }));
+    root.appendChild(el('a-circle', {
+      position: '4.2 3.25 -6.87',
+      radius: '0.14',
+      material: 'color:#2b2b2b; shader:flat'
+    }));
+    root.appendChild(el('a-circle', {
+      position: '2.8 3.1 -6.95',
+      radius: '0.25',
+      material: 'color:#f5f7f8; shader:flat'
+    }));
+    root.appendChild(el('a-circle', {
+      position: '2.8 3.1 -6.93',
+      radius: '0.23',
+      material: 'color:#2b3436; shader:flat',
+      side: 'double'
+    }));
+    root.appendChild(el('a-box', {
+      position: '2.8 3.15 -6.9',
+      width: '0.02',
+      height: '0.15',
+      depth: '0.01',
+      material: 'color:#f5f7f8; shader:flat'
+    }));
+
+    // fire extinguisher
+    root.appendChild(el('a-cylinder', {
+      position: '-6.9 0.5 -3.5',
+      radius: '0.1',
+      height: '0.55',
+      material: 'color:#c9303f; shader:flat'
+    }));
+    root.appendChild(el('a-cylinder', {
+      position: '-6.9 0.82 -3.5',
+      radius: '0.03',
+      height: '0.12',
+      material: 'color:#3a4749; shader:flat'
+    }));
+
+    // floor rails
+    root.appendChild(el('a-cylinder', {
+      position: '0 0.15 -6.85',
+      rotation: '0 0 90',
+      radius: '0.06',
+      height: '13.6',
+      material: 'color:#9aa4a6; shader:flat'
+    }));
+    root.appendChild(el('a-cylinder', {
+      position: '-6.85 0.15 0',
+      rotation: '90 0 0',
+      radius: '0.06',
+      height: '13.6',
+      material: 'color:#9aa4a6; shader:flat'
+    }));
+  }
+
+  buildLabDressing();
+
+  function wireHoverFeedback() {
+    document.querySelectorAll('.clickable').forEach((elm) => {
+      elm.addEventListener('mouseenter', () => {
+        $('#crosshair').classList.add('hot');
+        elm.setAttribute('scale', '1.15 1.15 1.15');
+      });
+      elm.addEventListener('mouseleave', () => {
+        $('#crosshair').classList.remove('hot');
+        elm.setAttribute('scale', '1 1 1');
+      });
+    });
+  }
+  wireHoverFeedback();
+
+  document.querySelectorAll('.datapad').forEach((pad) => {
+    pad.addEventListener('click', () => {
+      const title = pad.getAttribute('data-title') || 'LOG ENTRY';
+      const body = (pad.getAttribute('data-body') || '').split('%0A').join('\n');
+      $('#logTitle').textContent = title;
+      $('#logBody').textContent = body;
+      $('#logModal').classList.add('active');
+      if (document.exitPointerLock) document.exitPointerLock();
+    });
+  });
+  $('#logClose').addEventListener('click', () => $('#logModal').classList.remove('active'));
+
+  const state = {
+    stage: 'intro',
+    contamination: 0,
+    contaminationPaused: false,
+    gameOver: false,
+    playerMarked: false,
+    power: { 1: false, 2: false, 3: false },
+    sampleArmed: false,
+    selectedFragment: null,
+    dnaSlots: { A: null, B: null, C: null },
+    ventSequence: [],
+    ventCorrectSequence: ['He', 'Ne', 'Ar'],
+    finalSteps: { scan: false, stabiliser: false, lasers: false, code: false }
+  };
+  const PIN_CODE = '4172';
+  const CONSOLE_PIN = '7392';
+  let pinInput = '';
+  let compInput = '';
+
+  function playSound(id) {
+    const e = document.getElementById(id);
+    if (e) { e.currentTime = 0; e.play().catch(() => {}); }
+  }
+
+  function toast(msg, ms = 2200) {
+    const t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.classList.remove('show'), ms);
+  }
+
+  function setObjective(text) {
+    const box = $('#objectiveBox');
+    box.classList.remove('show');
+    setTimeout(() => {
+      box.textContent = text;
+      box.classList.add('show');
+    }, 150);
+  }
+
+  function setStage(name, hint) {
+    $('#stageName').textContent = name;
+    $('#stageHint').textContent = hint;
+  }
+
+  function setGoalText(text) {
+    const e = $('#goalText');
+    e.setAttribute('value', text);
+    e.setAttribute('animation__fade', 'property: opacity; from: 0; to: 1; dur: 1200; easing: easeInOutQuad');
+  }
+
+  function flashScreen(color = '#e0293c', duration = 250) {
+    const f = $('#flash');
+    f.style.background = color;
+    f.style.transition = 'none';
+    f.style.opacity = '0.45';
+    requestAnimationFrame(() => {
+      f.style.transition = `opacity ${duration}ms ease`;
+      f.style.opacity = '0';
+    });
+  }
+
+  function setContamination(delta) {
+    if (state.gameOver) return;
+    state.contamination = Math.max(0, Math.min(100, state.contamination + delta));
+    const fill = $('#meterFill');
+    fill.style.width = state.contamination + '%';
+    $('#meterPct').textContent = Math.round(state.contamination) + '%';
+    fill.style.background =
+      state.contamination < 40 ? 'var(--safe)' :
+      state.contamination < 75 ? 'var(--warn)' : 'var(--danger)';
+    if (delta > 0) flashScreen('#e0293c', 200);
+    $('#fogLeak').setAttribute('material', `color:#ffffff; opacity:${Math.min(0.4, state.contamination / 250)}; transparent:true; shader:flat`);
+    if (state.contamination >= 100) failEnding();
+  }
+
+  setInterval(() => {
+    if (!state.contaminationPaused && !state.gameOver && state.stage !== 'intro') {
+      setContamination(1);
+    }
+  }, 7000);
+
+  $('#enterBtn').addEventListener('click', () => {
+    $('#introOverlay').classList.remove('active');
+    $('#startHint').style.display = 'block';
+    setTimeout(() => { $('#startHint').style.display = 'none'; }, 6000);
+    playSound('sfx-voice');
+    setStage('POWER FAILURE', 'Restore the relay to bring systems back online.');
+    setGoalText('RESTORE POWER.');
+    setObjective('Flip the three relay switches. Avoid the faulty one—it spikes contamination.');
+    state.stage = 'power';
+  });
+
+  ['switch1', 'switch2', 'switch3'].forEach((id) => {
+    $('#' + id).addEventListener('click', (e) => {
+      if (state.stage !== 'power') return;
+      const num = e.target.getAttribute('data-switch');
+      state.power[num] = !state.power[num];
+      e.target.setAttribute('material', `color:${state.power[num] ? '#1f9d5c' : '#e0293c'}`);
+      checkPower();
+    });
+  });
+
+  $('#switchFaulty').addEventListener('click', () => {
+    if (state.stage !== 'power') return;
+    toast('WARNING: relay fault triggered');
+    playSound('sfx-error');
+    setContamination(10);
+  });
+
+  function checkPower() {
+    if (state.power[1] && state.power[2] && state.power[3]) {
+      toast('Power restored.');
+      playSound('sfx-success');
+      startDnaPuzzle();
+    }
+  }
+
+  function startDnaPuzzle() {
+    state.stage = 'dna';
+    setStage('SAMPLE UNSTABLE', 'Retrieve the sample, then sequence the gene fragments.');
+    setGoalText('STABILIZE THE SAMPLE.');
+    setObjective('Click the glowing sample to load it into the sequencer. Each slot lists an element—use the periodic table shading to match strand category.');
+  }
+
+  $('#sample').addEventListener('click', () => {
+    if (state.stage !== 'dna' || state.sampleArmed) return;
+    state.sampleArmed = true;
+    $('#sample').setAttribute('animation__move', 'property: position; to: -2 1.05 -5.0; dur: 700; easing: easeInOutQuad');
+    $('#dnaArea').setAttribute('visible', true);
+    $('#fragments').setAttribute('visible', true);
+    toast('Sample loaded into sequencer.');
+    setContamination(-5);
+  });
+
+  document.querySelectorAll('.dna-fragment').forEach((frag) => {
+    frag.addEventListener('click', () => {
+      if (state.stage !== 'dna' || !state.sampleArmed) return;
+      document.querySelectorAll('.dna-fragment').forEach((f) => f.setAttribute('scale', '1 1 1'));
+      state.selectedFragment = frag;
+      frag.setAttribute('scale', '1.4 1.4 1.4');
+      toast('Fragment selected—now click the slot whose element matches this category.');
+    });
+  });
+
+  document.querySelectorAll('.dna-slot').forEach((slot) => {
+    slot.addEventListener('click', () => {
+      if (state.stage !== 'dna' || !state.selectedFragment) return;
+      const frag = state.selectedFragment;
+      const fragId = frag.getAttribute('data-frag');
+      const correct = slot.getAttribute('data-correct');
+
+      if (state.dnaSlots[slot.getAttribute('data-slot')] !== null) {
+        toast('Slot already filled.');
+        return;
+      }
+
+      if (fragId === correct) {
+        slot.setAttribute('material', 'color:#1f9d5c; shader:flat');
+        frag.setAttribute('visible', false);
+        state.dnaSlots[slot.getAttribute('data-slot')] = fragId;
+        toast('Fragment locked in.');
+        playSound('sfx-success');
+      } else {
+        slot.setAttribute('animation__wrong', 'property: material.color; type: color; from: #e0293c; to: #c7d0d2; dur: 500');
+        setContamination(12);
+        playSound('sfx-error');
+        toast('Wrong strand—sequence rejected.');
+      }
+
+      frag.setAttribute('scale', '1 1 1');
+      state.selectedFragment = null;
+
+      if (Object.values(state.dnaSlots).every((v) => v !== null)) {
+        toast('Sequence complete.');
+        setTimeout(runJumpscare, 800);
+      }
+    });
+  });
+
+  function runJumpscare() {
+    state.stage = 'jumpscare';
+    state.contaminationPaused = true;
+    setStage('!! ANOMALY !!', 'Something moved in the vent.');
+    setObjective('');
+
+    $('#mainLight').setAttribute('light', 'intensity', 0.1);
+    $('#ambientLight').setAttribute('light', 'intensity', 0.15);
+    playSound('sfx-bang');
+
+    $('#vent').setAttribute('animation__open', 'property: rotation; to: 0 0 70; dur: 400; easing: easeOutCubic');
+
+    const shadow = $('#shadowFigure');
+    shadow.setAttribute('visible', true);
+    shadow.setAttribute('position', '6 1.4 3');
+    shadow.setAttribute('animation__dash', 'property: position; to: -6 1.4 -2; dur: 500; easing: easeInQuad');
+    setTimeout(() => shadow.setAttribute('visible', false), 550);
+
+    let flickers = 0;
+    const flick = setInterval(() => {
+      const on = flickers % 2 === 0;
+      $('#redLight1').setAttribute('light', 'intensity', on ? 1.6 : 0.2);
+      $('#redLight2').setAttribute('light', 'intensity', on ? 1.6 : 0.2);
+      flashScreen(on ? '#12181a' : '#e0293c', 150);
+      flickers++;
+      if (flickers > 8) {
+        clearInterval(flick);
+        $('#redLight1').setAttribute('light', 'intensity', 0);
+        $('#redLight2').setAttribute('light', 'intensity', 0);
+        $('#ambientLight').setAttribute('light', 'intensity', 0.9);
+        $('#mainLight').setAttribute('light', 'intensity', 1);
+        state.contaminationPaused = false;
+        setContamination(20);
+        startChemPuzzle();
+      }
+    }, 180);
+  }
+
+  function startChemPuzzle() {
+    state.stage = 'chem';
+    $('#chemArea').setAttribute('visible', true);
+    setStage('MIXTURE UNSTABLE', 'Match the readout to the correct compound.');
+    setGoalText('FIND THE COMPOUND.');
+    setObjective('The readout is damaged but part of a word survives. Work out which element category it needs, then pick the bottle labeled with that element\'s symbol. Watch the mixer color to see the reaction.');
+  }
+
+  document.querySelectorAll('.bottle').forEach((bottle) => {
+    const pos = bottle.getAttribute('position');
+    bottle.setAttribute('data-origpos', pos);
+    bottle.addEventListener('click', () => {
+      if (state.stage !== 'chem') return;
+      const mixer = $('#mixer');
+      const isCorrect = bottle.getAttribute('data-correct') === 'true';
+
+      bottle.setAttribute('animation__pour', 'property: position; to: 0 0.3 0.6; dur: 400; easing: easeInQuad');
+      bottle.setAttribute('animation__tilt', 'property: rotation; to: 0 0 40; dur: 400; easing: easeInQuad');
+
+      setTimeout(() => {
+        if (isCorrect) {
+          mixer.setAttribute('material', 'color:#1f9d5c; shader:flat');
+          mixer.setAttribute('animation__glow', 'property: material.opacity; from: 0.7; to: 1; dur: 600; dir: alternate; loop: 2');
+          playSound('sfx-success');
+          toast('Compound stabilized.');
+          setContamination(-15);
+          setTimeout(startMicroscopePuzzle, 700);
+        } else {
+          mixer.setAttribute('animation__flash', 'property: material.color; type: color; from: #e0293c; to: #8a9a9c; dur: 500');
+          playSound('sfx-error');
+          toast('Wrong compound—reaction unstable.');
+          setContamination(18);
+        }
+        bottle.setAttribute('animation__reset', `property: position; to: ${bottle.getAttribute('data-origpos')}; dur: 400`);
+        bottle.setAttribute('animation__untilt', 'property: rotation; to: 0 0 0; dur: 400');
+      }, 420);
+    });
+  });
+
+  function startMicroscopePuzzle() {
+    state.stage = 'scope';
+    $('#scopeArea').setAttribute('visible', true);
+    setStage('ANALYSIS REQUIRED', 'Use the microscope, then unlock the console.');
+    setGoalText('DERIVE ACCESS PIN.');
+    setObjective('Click the microscope to inspect the slide. The organisms form shapes that look suspiciously like digits. Use that PIN on the nearby console to continue.');
+  }
+
+  $('#microscope').addEventListener('click', () => {
+    if (state.stage !== 'scope') return;
+    $('#scopeModal').classList.add('active');
+    if (document.exitPointerLock) document.exitPointerLock();
+  });
+  $('#scopeClose').addEventListener('click', () => $('#scopeModal').classList.remove('active'));
+
+  $('#labConsole').addEventListener('click', () => {
+    if (state.stage !== 'scope') return;
+    openCompModal();
+  });
+
+  function openCompModal() {
+    compInput = '';
+    updateCompDisplay();
+    $('#compModal').classList.add('active');
+    if (document.exitPointerLock) document.exitPointerLock();
+  }
+  function closeCompModal() {
+    $('#compModal').classList.remove('active');
+  }
+  function updateCompDisplay(wrong) {
+    const disp = $('#compDisplay');
+    const shown = compInput.padEnd(4, '_').split('').join(' ');
+    disp.textContent = shown;
+    disp.classList.toggle('wrong', !!wrong);
+  }
+
+  document.querySelectorAll('#compGrid button[data-d]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (compInput.length >= 4) return;
+      compInput += btn.getAttribute('data-d');
+      updateCompDisplay();
+    });
+  });
+  $('#compBackspace').addEventListener('click', () => {
+    compInput = compInput.slice(0, -1);
+    updateCompDisplay();
+  });
+  $('#compSubmit').addEventListener('click', () => {
+    if (compInput === CONSOLE_PIN) {
+      closeCompModal();
+      toast('Console unlocked. Vent controls online.');
+      playSound('sfx-success');
+      startVentPuzzle();
+    } else {
+      updateCompDisplay(true);
+      playSound('sfx-error');
+      setTimeout(() => { compInput = ''; updateCompDisplay(); }, 500);
+    }
+  });
+  $('#compClose').addEventListener('click', closeCompModal);
+
+  function startVentPuzzle() {
+    state.stage = 'vent';
+    $('#ventArea').setAttribute('visible', true);
+    setStage('VENT UNSEALED', 'Seal the vent before fog fills the room.');
+    setGoalText('SEAL THE VENT.');
+    setObjective('The purge order isn\'t written on the panel. Check the periodic table for the order these elements appear in—top row first, then down. A maintenance note nearby might help too.');
+  }
+
+  document.querySelectorAll('.vent-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (state.stage !== 'vent') return;
+      const n = btn.getAttribute('data-btn');
+      state.ventSequence.push(n);
+      btn.setAttribute('animation__press', 'property: scale; from: 1.3 1.3 1.3; to: 1 1 1; dur: 250');
+      const idx = state.ventSequence.length - 1;
+      if (state.ventSequence[idx] !== state.ventCorrectSequence[idx]) {
+        playSound('sfx-error');
+        toast('Incorrect sequence—vent leaking.');
+        setContamination(12);
+        $('#fogLeak').setAttribute('animation__fog', 'property: opacity; from: 0.35; to: 0.05; dur: 1500');
+        state.ventSequence = [];
+        return;
+      }
+
+      if (state.ventSequence.length === state.ventCorrectSequence.length) {
+        playSound('sfx-success');
+        toast('Vent sealed.');
+        setContamination(-10);
+        $('#fogLeak').setAttribute('material', 'opacity:0; transparent:true; shader:flat');
+        $('#vent').setAttribute('animation__seal', 'property: rotation; to: 0 0 0; dur: 500');
+        setTimeout(startFinalPuzzle, 700);
+      }
+    });
+  });
+
+  $('#vialSubject07').addEventListener('click', () => {
+    if (state.playerMarked) return;
+    state.playerMarked = true;
+    playSound('sfx-glitch');
+    toast('...');
+    $('#vialSubject07').setAttribute('animation__fade', 'property: opacity; from: 1; to: 0; dur: 900');
+    $('#vialSubject07').setAttribute('material', 'transparent:true; color:#c9820a; shader:flat');
+  });
+
+  function startFinalPuzzle() {
+    state.stage = 'final';
+    $('#finalArea').setAttribute('visible', true);
+    setStage('OVERRIDE AVAILABLE', 'Reach the containment door and complete the override.');
+    setGoalText('CONTAINMENT OVERRIDE.');
+    setObjective('Complete all four override steps. The terminal needs a 4-digit PIN, split across two logs you may have already read.');
+
+    if (state.playerMarked) {
+      setTimeout(secretEnding, 1200);
+    }
+  }
+
+  function tryFinalStep(name, e) {
+    if (state.stage !== 'final' || state.playerMarked) return;
+    state.finalSteps[name] = true;
+    e.setAttribute('material', 'color:#1f9d5c; shader:flat');
+    toast(name.toUpperCase() + ' confirmed.');
+    playSound('sfx-success');
+    if (Object.values(state.finalSteps).every(Boolean)) {
+      setTimeout(successEnding, 900);
+    }
+  }
+
+  $('#stepScan').addEventListener('click', () => tryFinalStep('scan', $('#stepScan')));
+  $('#stepStabiliser').addEventListener('click', () => tryFinalStep('stabiliser', $('#stepStabiliser')));
+  $('#stepLasers').addEventListener('click', () => tryFinalStep('lasers', $('#stepLasers')));
+
+  // terminal: always open when clicked (if not secret-marked)
+  $('#stepCode').addEventListener('click', () => {
+    if (state.playerMarked || state.finalSteps.code) return;
+    openPinModal();
+  });
+
+  function openPinModal() {
+    pinInput = '';
+    updatePinDisplay();
+    $('#pinModal').classList.add('active');
+    if (document.exitPointerLock) document.exitPointerLock();
+  }
+  function closePinModal() {
+    $('#pinModal').classList.remove('active');
+  }
+  function updatePinDisplay(wrong) {
+    const disp = $('#pinDisplay');
+    const shown = pinInput.padEnd(4, '_').split('').join(' ');
+    disp.textContent = shown;
+    disp.classList.toggle('wrong', !!wrong);
+  }
+
+  document.querySelectorAll('#pinGrid button[data-d]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (pinInput.length >= 4) return;
+      pinInput += btn.getAttribute('data-d');
+      updatePinDisplay();
+    });
+  });
+
+  $('#pinBackspace').addEventListener('click', () => {
+    pinInput = pinInput.slice(0, -1);
+    updatePinDisplay();
+  });
+
+  $('#pinSubmit').addEventListener('click', () => {
+    if (pinInput === PIN_CODE) {
+      closePinModal();
+      toast('Access granted.');
+      tryFinalStep('code', $('#stepCode'));
+    } else {
+      updatePinDisplay(true);
+      playSound('sfx-error');
+      setTimeout(() => { pinInput = ''; updatePinDisplay(); }, 500);
+    }
+  });
+
+  $('#pinClose').addEventListener('click', closePinModal);
+
+  function endGame(overlayId) {
+    state.gameOver = true;
+    state.stage = 'ended';
+    if (document.exitPointerLock) document.exitPointerLock();
+    $(overlayId).classList.add('active');
+  }
+
+  function failEnding() {
+    playSound('sfx-alarm');
+    $('#ambientLight').setAttribute('light', 'intensity', 0.1);
+    $('#mainLight').setAttribute('light', 'intensity', 0);
+    endGame('#failOverlay');
+  }
+
+  function successEnding() {
+    playSound('sfx-success');
+    endGame('#successOverlay');
+  }
+
+  function secretEnding() {
+    state.contaminationPaused = true;
+    toast('Subject 07 recognised.');
+    setTimeout(() => endGame('#secretOverlay'), 1500);
+  }
+}
+
+if (window.AFRAME) {
+  document.querySelector('a-scene').addEventListener('loaded', initGame);
+} else {
+  window.addEventListener('load', () => {
+    if (window.AFRAME) {
+      const scene = document.querySelector('a-scene');
+      if (scene.hasLoaded) initGame();
+      else scene.addEventListener('loaded', initGame);
+    }
+  });
+}
+</script>
+</body>
+</html>
